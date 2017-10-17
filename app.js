@@ -1,17 +1,24 @@
-'use strict';
+// 'use strict';
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const port = process.env.PORT || 8080;
-const mongoose = require('mongoose');
+var express     = require("express"),
+    app         = express(),
+    bodyParser  = require("body-parser"),
+    mongoose    = require("mongoose"),
+    passport    = require("passport"),
+    LocalStrategy = require("passport-local"),
+    User  = require("./models/user");
+
+const port = process.env.PORT || 2000;
+
+
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const path = require('path');
 const favicon = require('serve-favicon');
-const session = require('express-session');
+var session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const app = express();
 const config = require('./lib/config.js');
+var flash = require("connect-flash");
 
 mongoose.Promise = Promise;
 mongoose.connect(config.db.url);
@@ -43,14 +50,36 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(helmet());
+app.use(flash());
 app.use(session({
     secret: config.secret,
     resave: false,
     saveUninitialized: true,
+    cookie: { secure: true },
+    // saveUninitialized: false,
     store: store,
     unset: 'destroy',
     name: config.name
 }));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+app.use(function(req, res, next){
+    res.locals.currentUser = req.user;
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
+    // res.locals.message = "";
+
+   next();
+});
+
+var indexRoutes    = require("./routes/index");
+app.use("/", indexRoutes);
+
 
 app.get('/', (req, res) => {
   Products.find({price: {'$gt': 0}}).sort({price: -1}).limit(6).then(products => {
@@ -127,6 +156,9 @@ app.post('/cart', (req, res) => {
             Cart.addToCart(prod, qty);
             Cart.saveCart(req);
            // do your thang
+           // console.log("hiasd")
+            req.flash('success', qty + " unit(s) of " + prod.title + ' added to cart!');
+            // res.redirect('/cart');
             res.redirect('back');
             // res.redirect('/cart');
         }).catch(err => {
