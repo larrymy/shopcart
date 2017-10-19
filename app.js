@@ -22,7 +22,7 @@ var flash = require("connect-flash");
 
 mongoose.Promise = Promise;
 
-console.log(process.env.meanDATABASEURL)
+// console.log(process.env.meanDATABASEURL)
 var url = process.env.meanDATABASEURL || config.db.url
 mongoose.connect(url);
 console.log(url.substr(30,60))
