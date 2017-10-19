@@ -1,7 +1,6 @@
 {
   "name": "Cart",
   "version": "1.0.0",
-  "private": true,
   "description": "Node.js shopping cart",
   "main": "app.js",
   "scripts": {

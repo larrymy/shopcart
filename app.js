@@ -24,7 +24,10 @@ mongoose.Promise = Promise;
 
 // console.log(process.env.meanDATABASEURL)
 var url = process.env.meanDATABASEURL || config.db.url
-mongoose.connect(url);
+mongoose.connect(url, {
+  useMongoClient: true,
+  /* other options */
+});
 console.log(url.substr(30,60))
 
 const Products = require('./models/Products');
