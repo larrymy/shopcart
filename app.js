@@ -36,10 +36,10 @@ const Products = require('./models/Products');
 const Cart = require('./lib/Cart');
 const Security = require('./lib/Security');
 
-const store = new MongoDBStore({
-    uri: config.db.url,
-    collection: config.db.sessions
-});
+// const store = new MongoDBStore({
+//     uri: config.db.url,
+//     collection: config.db.sessions
+// });
 
 app.disable('x-powered-by');
 
@@ -66,7 +66,7 @@ app.use(session({
     saveUninitialized: true,
     // cookie: { secure: true },
     // saveUninitialized: false,
-    store: store,
+    // store: store,
     unset: 'destroy',
     name: config.name
 }));
