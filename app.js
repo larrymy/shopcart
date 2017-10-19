@@ -21,7 +21,11 @@ const config = require('./lib/config.js');
 var flash = require("connect-flash");
 
 mongoose.Promise = Promise;
-mongoose.connect(config.db.url);
+
+console.log(process.env.meanDATABASEURL)
+var url = process.env.meanDATABASEURL || config.db.url
+mongoose.connect(url);
+console.log(url.substr(30,60))
 
 const Products = require('./models/Products');
 const Cart = require('./lib/Cart');
@@ -55,7 +59,7 @@ app.use(session({
     secret: config.secret,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true },
+    // cookie: { secure: true },
     // saveUninitialized: false,
     store: store,
     unset: 'destroy',
@@ -119,6 +123,8 @@ app.get('/supp1', (req, res) => {
 
 
 app.get('/cart', (req, res) => {
+  console.log(req.sessionID)
+  
     let sess = req.session;
     let cart = (typeof sess.cart !== 'undefined') ? sess.cart : false;
     res.render('cart', {
@@ -149,10 +155,17 @@ app.get('/cart/empty/:nonce', (req, res) => {
 });
 
 app.post('/cart', (req, res) => {
+  console.log(Security.md5(req.sessionID + req.headers['user-agent']));
+  console.log(req.body.nonce)
+  console.log(req.sessionID)
     let qty = parseInt(req.body.qty, 10);
     let product = parseInt(req.body.product_id, 10);
+
+    // console.log((req.body.nonce))
+    // console.log(req)
     if(qty > 0 && Security.isValidNonce(req.body.nonce, req)) {
         Products.findOne({product_id: product}).then(prod => {
+
             Cart.addToCart(prod, qty);
             Cart.saveCart(req);
            // do your thang
@@ -242,4 +255,9 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500);
 });
 
-app.listen(port);
+// app.listen(port);
+app.listen(port, function(err){
+    var d = new Date();
+    var n = d.toLocaleTimeString();
+        console.log("Port: " + port + ", The MEAN GM Server Has Started! Time: " + n);
+});
