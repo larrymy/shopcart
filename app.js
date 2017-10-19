@@ -23,12 +23,14 @@ var flash = require("connect-flash");
 mongoose.Promise = Promise;
 
 // console.log(process.env.meanDATABASEURL)
-var url = process.env.meanDATABASEURL || config.db.url
+var url = process.env.meanDATABASEURL || config.db.url;
+console.log(config.db.url);
+console.log(url);
 mongoose.connect(url, {
   useMongoClient: true,
   /* other options */
 });
-console.log(url.substr(30,60))
+console.log(url.substr(30,60));
 
 const Products = require('./models/Products');
 const Cart = require('./lib/Cart');
