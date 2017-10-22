@@ -35,6 +35,8 @@ console.log(url.substr(30,60));
 const Products = require('./models/Products');
 const Cart = require('./lib/Cart');
 const Security = require('./lib/Security');
+const SelectProd = require('./lib/SelectProd');
+const DisplayProd = require('./lib/DisplayProd');
 
 // const store = new MongoDBStore({
 //     uri: config.db.url,
@@ -90,33 +92,71 @@ var indexRoutes    = require("./routes/index");
 app.use("/", indexRoutes);
 
 
-app.get('/', (req, res) => {
-  Products.find({price: {'$gt': 0}}).sort({price: -1}).limit(6).then(products => {
-      let format = new Intl.NumberFormat(req.app.locals.locale.lang, {style: 'currency', currency: req.app.locals.locale.currency });
+// app.get('/', (req, res) => {
+//   console.log("hi");
+//   Products.find({price: {'$gt': 0}}).sort({price: -1}).limit(6).then(products => {
+//       //TEST ZONE
+//         // console.log(SelectProd.uniqueLocation(products));
+//         // console.log(SelectProd.uniqueShop(products));
+//         // console.log(SelectProd.uniqueCategory(products));
+//       //
+//       let format = new Intl.NumberFormat(req.app.locals.locale.lang, {style: 'currency', currency: req.app.locals.locale.currency });
+//       products.forEach( (product) => {
+//          product.formattedPrice = format.format(product.price);
+//       });
+//       res.render('index', {
+//           pageTitle: 'Node.js Shopping Cart',
+          // address: ["All", "All", "All"],
+//           products: products,
+//           SelectProd: SelectProd,
+//           nonce: Security.md5(req.sessionID + req.headers['user-agent'])
+//       });
+
+//   }).catch(err => {
+//       res.status(400).send('Bad request');
+//   });
+
+// });
+
+app.get("/", function(req,res){
+  res.redirect("/All/All/All")
+})
+
+app.get('/:loc/:shop/:category', (req, res) => {
+
+
+  var loc =  req.params.loc;
+  var shop =  req.params.shop;
+  var category =  req.params.category;
+  var address = [loc,shop,category];
+  if(loc == "All"){loc = ""}
+  if(shop == "All"){shop = ""}
+  if(category == "All"){category = ""}
+
+  Products.find({ price: {'$gt': 0},
+                  location: { "$regex": loc, "$options": "i" },
+                  shop: { "$regex": shop, "$options": "i" },
+                  category: { "$regex": category, "$options": "i" }
+                }).sort({price: -1}).limit(25).then(products => {
+      //TEST ZONE
+      console.log(DisplayProd.numUnique(products));
+      console.log(DisplayProd.variationList(products, 33));
+      // console.log(DisplayProd.variationKeys(products, 21));
+      // console.log(DisplayProd.getVariationId(products, 22, {}));
+      // console.log(SelectProd.uniqueShop(products));
+      // console.log(SelectProd.uniqueCategory(products));
+      // console.log(SelectProd.uniqueCategory(products));
+   //
+      // let format = new Intl.NumberFormat(req.app.locals.locale.lang, {style: 'currency', currency: req.app.locals.locale.currency });
+      let format = new Intl.NumberFormat(req.app.locals.locale.lang, {style: 'currency', currency: "MYR" });
       products.forEach( (product) => {
          product.formattedPrice = format.format(product.price);
       });
       res.render('index', {
           pageTitle: 'Node.js Shopping Cart',
+          address: address,
           products: products,
-          nonce: Security.md5(req.sessionID + req.headers['user-agent'])
-      });
-
-  }).catch(err => {
-      res.status(400).send('Bad request');
-  });
-
-});
-
-app.get('/supp1', (req, res) => {
-  Products.find({price: {'$gt': 0}}).sort({price: -1}).limit(6).then(products => {
-      let format = new Intl.NumberFormat(req.app.locals.locale.lang, {style: 'currency', currency: req.app.locals.locale.currency });
-      products.forEach( (product) => {
-         product.formattedPrice = format.format(product.price);
-      });
-      res.render('index', {
-          pageTitle: 'Node.js Shopping Cart',
-          products: products,
+          SelectProd: SelectProd,
           nonce: Security.md5(req.sessionID + req.headers['user-agent'])
       });
 
@@ -128,7 +168,7 @@ app.get('/supp1', (req, res) => {
 
 
 app.get('/cart', (req, res) => {
-  console.log(req.sessionID)
+  // console.log(req.sessionID)
   
     let sess = req.session;
     let cart = (typeof sess.cart !== 'undefined') ? sess.cart : false;
@@ -226,7 +266,7 @@ app.post('/checkout', (req, res) => {
 
 
 app.get('/add_product', (req, res) => {
-
+    // var newprod = new Products();
         res.render('add_prod', {
             pageTitle: 'Add Product'
           })
@@ -235,7 +275,12 @@ app.get('/add_product', (req, res) => {
 });
 
 app.post('/add_product', (req, res) => {
-  // console.log(req.body);
+  console.log(req.body);
+  req.body.variations = {
+    size: req.body.size,
+    noodle: req.body.noodle,
+    sauce : req.body.sauce,
+  }
   var newProd = new Products(req.body);
   console.log(newProd)
   Products.create(newProd, function(err, newprod){

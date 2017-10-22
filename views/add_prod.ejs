@@ -1,19 +1,37 @@
 <form id="paypal-form" action="/add_product" method="POST">
-    <label>product ID</label>
+    <label>product_ID</label>
     <input type="number" class="form-control" name="product_id" placeholder="product_id">
-    <label>id</label>
-    <input type="text" class="form-control" name="id" placeholder="id">
+    <label>variation_ID</label>
+    <input type="text" class="form-control" name="variation_id" placeholder="variation_id">
     <label>title</label>
     <input type="text" name="title" placeholder="title">
 
     <label>description</label>
     <input type="text" name="description" placeholder="description">
-    <label>manufacturer</label>
-    <input type="text" name="manufacturer" placeholder="manufacturer">
+    <label>location</label>
+    <input type="text" name="location" placeholder="image">
+    <label>shop</label>
+    <input type="text" name="shop" placeholder="image">
+    <label>category</label>
+    <input type="text" name="category" placeholder="image">
+    <label>variatons:size</label>
+    <input type="text" name="size" placeholder="image">
+    <!-- <input type="text" name="variations[size]" placeholder="image"> -->
+    <label>variatons:noodle</label>
+    <input type="text" name="noodle" placeholder="image">
+    <!-- <input type="text" name="variations[noodle]" placeholder="image"> -->
+    <label>variatons:sauce</label>
+    <input type="text" name="sauce" placeholder="image">
+    <!-- <input type="text" name="variations[sauce]" placeholder="image"> -->
+   <!--  <label>manufacturer</label>
+    <input type="text" name="manufacturer" placeholder="manufacturer"> -->
     <label>price</label>
     <input type="string" name="price" placeholder="price">
     <label>image</label>
     <input type="text" name="image" placeholder="image">
+   
+
+
     
 
     <button type="submit">Submit</button>
